@@ -12,6 +12,7 @@ class PengajuanSurat extends Model
         'user_id',
 
         'keterangan',
+        'data_fields',
         'surat_pengantar_rt_rw',
 
         // Dokumen wajib
@@ -31,6 +32,10 @@ class PengajuanSurat extends Model
         'tanggal_disetujui',
         'nomor_surat',
         'catatan_admin',
+    ];
+
+    protected $casts = [
+        'data_fields' => 'array',
     ];
 
     public function penduduk()

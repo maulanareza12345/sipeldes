@@ -285,12 +285,17 @@
                 
                 <div class="form-group">
                     <label>Jenis Dokumen Surat</label>
-                    <select name="jenis_surat_id" required>
+                    <select name="jenis_surat_id" id="jenis_surat_id" required>
                         <option value="">Pilih jenis layanan surat</option>
                         @foreach($jenisSurats as $item)
-                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                            <option value="{{ $item->id }}" data-fields='{{ json_encode($item->fields_config ?? []) }}'>{{ $item->nama }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <!-- Dynamic fields container -->
+                <div id="dynamic_fields_container" style="display: none;">
+                    <!-- Fields will be injected here by JS -->
                 </div>
                 
                 <div class="form-group">
@@ -615,6 +620,256 @@
                     alert('Gagal mengambil data penduduk untuk pengajuan.');
                 }
             });
+        }
+
+        // ===== DYNAMIC FIELDS LOGIC =====
+        const jenisSelect = document.getElementById('jenis_surat_id');
+        const dynContainer = document.getElementById('dynamic_fields_container');
+
+        if (jenisSelect && dynContainer) {
+            const renderDynamicFields = () => {
+                const selected = jenisSelect.options[jenisSelect.selectedIndex];
+                let fields = [];
+                try {
+                    if (selected && selected.dataset.fields) {
+                        fields = JSON.parse(selected.dataset.fields);
+                    }
+                } catch (e) {
+                    fields = [];
+                }
+
+                dynContainer.innerHTML = '';
+
+                if (!fields || fields.length === 0) {
+                    dynContainer.style.display = 'none';
+                    return;
+                }
+
+                dynContainer.style.display = 'block';
+                
+                // Add a subtle divider
+                const divider = document.createElement('div');
+                divider.style.cssText = 'border-top: 1px dashed #cbd5e1; margin: 16px 0;';
+                dynContainer.appendChild(divider);
+
+                // Add section label
+                const sectionLabel = document.createElement('div');
+                sectionLabel.style.cssText = 'font-weight: 700; font-size: 0.78rem; color: #0f172a; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;';
+                sectionLabel.textContent = 'Data Khusus ' + (selected ? selected.text : '');
+                dynContainer.appendChild(sectionLabel);
+
+                let keluargaTableContainer = null;
+
+                fields.forEach((field) => {
+                    const fieldName = 'dynamic_' + field.name;
+                    const requiredStar = field.required ? ' <span style="color:#dc2626;">*</span>' : '';
+
+                    // Special handling for keluarga_pindah - render interactive table
+                    if (field.name === 'keluarga_pindah') {
+                        // Create hidden textarea to store JSON data
+                        const hiddenInput = document.createElement('textarea');
+                        hiddenInput.name = 'dynamic_keluarga_pindah';
+                        hiddenInput.id = 'dynamic_keluarga_pindah';
+                        hiddenInput.style.display = 'none';
+                        hiddenInput.value = '[]';
+                        dynContainer.appendChild(hiddenInput);
+
+                        // Create interactive table
+                        keluargaTableContainer = document.createElement('div');
+                        keluargaTableContainer.className = 'form-group';
+                        keluargaTableContainer.innerHTML = `
+                            <label>ANGGOTA KELUARGA YANG PINDAH</label>
+                            <div style="margin-bottom: 8px;">
+                                <table style="width:100%; border-collapse: collapse; font-size: 0.82rem; border: 1px solid #e2e8f0;" id="keluarga_table">
+                                    <thead>
+                                        <tr style="background: #f8fafc;">
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center; width: 30px;">No</th>
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">NIK</th>
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">Nama Lengkap</th>
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">Tanggal Lahir</th>
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">SHDK</th>
+                                            <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: center; width: 40px;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="keluarga_table_body">
+                                        <tr>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">1</td>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="text" class="keluarga-input nik-input" placeholder="NIK" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="text" class="keluarga-input nama-input" placeholder="Nama" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="date" class="keluarga-input tgl-input" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0;">
+                                                <select class="keluarga-input shdk-input" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;">
+                                                    <option value="">Pilih</option>
+                                                    <option value="Kepala Keluarga">Kepala Keluarga</option>
+                                                    <option value="Istri">Istri</option>
+                                                    <option value="Suami">Suami</option>
+                                                    <option value="Anak">Anak</option>
+                                                    <option value="Famili Lain">Famili Lain</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">
+                                                <button type="button" class="btn-remove-row" style="background:#fee2e2; color:#dc2626; border:none; border-radius:4px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:700;">X</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" id="btn_add_keluarga" style="background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; padding:5px 12px; cursor:pointer; font-size:0.78rem; font-weight:700;">+ Tambah Anggota</button>
+                        `;
+                        dynContainer.appendChild(keluargaTableContainer);
+                        return;
+                    }
+
+                    // Skip hidden fields
+                    if (field.type === 'hidden' || field.show === false) return;
+
+                    const group = document.createElement('div');
+                    group.className = 'form-group';
+
+                    const label = document.createElement('label');
+                    label.innerHTML = field.label + requiredStar;
+                    group.appendChild(label);
+
+                    if (field.type === 'textarea') {
+                        const textarea = document.createElement('textarea');
+                        textarea.name = fieldName;
+                        textarea.placeholder = field.label;
+                        if (field.required) textarea.required = true;
+                        group.appendChild(textarea);
+                    } else if (field.type === 'select' && field.options) {
+                        const select = document.createElement('select');
+                        select.name = fieldName;
+                        if (field.required) select.required = true;
+                        
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.textContent = 'Pilih ' + field.label;
+                        select.appendChild(emptyOpt);
+                        
+                        field.options.forEach((optVal) => {
+                            const opt = document.createElement('option');
+                            opt.value = optVal;
+                            opt.textContent = optVal;
+                            select.appendChild(opt);
+                        });
+                        group.appendChild(select);
+                    } else if (field.type === 'date') {
+                        const input = document.createElement('input');
+                        input.type = 'date';
+                        input.name = fieldName;
+                        if (field.required) input.required = true;
+                        group.appendChild(input);
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.name = fieldName;
+                        input.placeholder = field.label;
+                        if (field.required) input.required = true;
+                        group.appendChild(input);
+                    }
+
+                    dynContainer.appendChild(group);
+                });
+
+                // Initialize keluarga table event handlers if it was rendered
+                if (keluargaTableContainer) {
+                    initKeluargaTable();
+                }
+            };
+
+            // Function to sync table data to hidden textarea as JSON
+            function syncKeluargaData() {
+                const hiddenInput = document.getElementById('dynamic_keluarga_pindah');
+                if (!hiddenInput) return;
+                const rows = document.querySelectorAll('#keluarga_table_body tr');
+                const data = [];
+                rows.forEach((row) => {
+                    const nik = row.querySelector('.nik-input')?.value || '';
+                    const nama = row.querySelector('.nama-input')?.value || '';
+                    const tgl = row.querySelector('.tgl-input')?.value || '';
+                    const shdk = row.querySelector('.shdk-input')?.value || '';
+                    if (nama || nik) {
+                        data.push({ nik, nama, tgl_lahir: tgl, shdk });
+                    }
+                });
+                hiddenInput.value = JSON.stringify(data);
+            }
+
+            // Initialize keluarga table events
+            function initKeluargaTable() {
+                // Add row button
+                const addBtn = document.getElementById('btn_add_keluarga');
+                if (addBtn) {
+                    addBtn.addEventListener('click', function() {
+                        const tbody = document.getElementById('keluarga_table_body');
+                        const rowCount = tbody.querySelectorAll('tr').length;
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">${rowCount + 1}</td>
+                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="text" class="keluarga-input nik-input" placeholder="NIK" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="text" class="keluarga-input nama-input" placeholder="Nama" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                            <td style="padding: 6px; border: 1px solid #e2e8f0;"><input type="date" class="keluarga-input tgl-input" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;"></td>
+                            <td style="padding: 6px; border: 1px solid #e2e8f0;">
+                                <select class="keluarga-input shdk-input" style="width:100%; border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; font-size:0.8rem;">
+                                    <option value="">Pilih</option>
+                                    <option value="Kepala Keluarga">Kepala Keluarga</option>
+                                    <option value="Istri">Istri</option>
+                                    <option value="Suami">Suami</option>
+                                    <option value="Anak">Anak</option>
+                                    <option value="Famili Lain">Famili Lain</option>
+                                </select>
+                            </td>
+                            <td style="padding: 6px; border: 1px solid #e2e8f0; text-align: center;">
+                                <button type="button" class="btn-remove-row" style="background:#fee2e2; color:#dc2626; border:none; border-radius:4px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:700;">X</button>
+                            </td>
+                        `;
+                        tbody.appendChild(newRow);
+                        updateRowNumbers();
+                        syncKeluargaData();
+                    });
+                }
+
+                // Remove row (delegated)
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('btn-remove-row')) {
+                        const tbody = document.getElementById('keluarga_table_body');
+                        if (tbody && tbody.querySelectorAll('tr').length > 1) {
+                            e.target.closest('tr').remove();
+                            updateRowNumbers();
+                            syncKeluargaData();
+                        } else {
+                            alert('Minimal harus ada 1 anggota keluarga.');
+                        }
+                    }
+                });
+
+                // Sync on input change (delegated)
+                document.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('keluarga-input')) {
+                        syncKeluargaData();
+                    }
+                });
+                document.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('keluarga-input')) {
+                        syncKeluargaData();
+                    }
+                });
+            }
+
+            function updateRowNumbers() {
+                const rows = document.querySelectorAll('#keluarga_table_body tr');
+                rows.forEach((row, idx) => {
+                    const firstTd = row.querySelector('td:first-child');
+                    if (firstTd) firstTd.textContent = idx + 1;
+                });
+            }
+
+            jenisSelect.addEventListener('change', renderDynamicFields);
+            
+            // Initial render if a value was previously selected (on validation error)
+            if (jenisSelect.value) {
+                renderDynamicFields();
+            }
         }
     })();
 </script>

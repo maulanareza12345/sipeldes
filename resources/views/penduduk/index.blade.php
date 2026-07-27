@@ -277,6 +277,10 @@
                     <input type="file" name="foto">
                 </div>
                 <div class="form-group">
+                    <label>Nomor Kartu Keluarga (NO KK)</label>
+                    <input type="text" name="no_kk" value="{{ old('no_kk', $penduduk->no_kk ?? '') }}" placeholder="Nomor KK (16 digit)">
+                </div>
+                <div class="form-group">
                     <label>Nomor Induk Kependudukan (NIK)</label>
                     <input type="text" name="nik" value="{{ old('nik', $penduduk->nik ?? '') }}" placeholder="16 digit NIK" required>
                 </div>

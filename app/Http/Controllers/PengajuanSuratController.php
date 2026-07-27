@@ -22,12 +22,20 @@ class PengajuanSuratController extends Controller
         $penduduks = Penduduk::all();
         $jenisSurats = JenisSurat::all();
 
-        return view('pengajuan-surat.index', compact('pengajuanSurats', 'penduduks', 'jenisSurats'));
+        // Load fields_config for each jenis surat, grouped by id for dynamic form JS
+        $fieldConfigs = [];
+        foreach ($jenisSurats as $js) {
+            if ($js->fields_config) {
+                $fieldConfigs[$js->id] = $js->fields_config;
+            }
+        }
+
+        return view('pengajuan-surat.index', compact('pengajuanSurats', 'penduduks', 'jenisSurats', 'fieldConfigs'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $baseRules = [
             'penduduk_id' => ['required', 'exists:penduduks,id'],
             'jenis_surat_id' => ['required', 'exists:jenis_surats,id'],
 
@@ -39,25 +47,49 @@ class PengajuanSuratController extends Controller
 
             // Input untuk validasi otomatis (tanpa OCR)
             'nik_ktp' => ['required', 'digits:16'],
-            // Untuk pengajuan KK gunakan nomor KK (bukan NIK). Di sistem ini field-nya tetap disimpan di kolom nik_kk.
             'nik_kk' => ['required', 'digits:16'],
 
-            // Surat Pengantar dari RT/RW (WAJIB ditampilkan di PDF)
+            // Surat Pengantar dari RT/RW
             'surat_pengantar_rt_rw' => ['required', 'string'],
 
             // ttd (opsional)
             'nama_ttd' => ['nullable', 'string', 'max:255'],
             'jabatan_ttd' => ['nullable', 'string', 'max:255'],
-        ]);
+        ];
+
+        // Add dynamic field validation based on selected jenis_surat
+        $jenisSurat = JenisSurat::find($request->jenis_surat_id);
+        $dynamicFieldRules = [];
+        if ($jenisSurat && $jenisSurat->fields_config) {
+            foreach ($jenisSurat->fields_config as $field) {
+                $fieldName = 'dynamic_' . $field['name'];
+                $rules = [];
+                if (!empty($field['required'])) {
+                    $rules[] = 'required';
+                } else {
+                    $rules[] = 'nullable';
+                }
+                $rules[] = 'string';
+                if ($field['type'] === 'date') {
+                    $rules[] = 'date';
+                }
+                if ($field['type'] === 'select' && !empty($field['options'])) {
+                    $rules[] = 'in:' . implode(',', $field['options']);
+                }
+                $dynamicFieldRules[$fieldName] = $rules;
+            }
+        }
+
+        $data = $request->validate(array_merge($baseRules, $dynamicFieldRules));
 
         $penduduk = Penduduk::query()->findOrFail($data['penduduk_id']);
 
-        // Normalisasi NIK (digits:16 sudah memastikan digit, tapi tetap pastikan string)
+        // Normalisasi NIK
         $nikKtp = (string) $data['nik_ktp'];
         $nikKk = (string) $data['nik_kk'];
         $nikPenduduk = (string) ($penduduk->nik ?? '');
 
-        // Validasi otomatis: KK dan KTP harus cocok + harus cocok dengan penduduk terpilih
+        // Validasi otomatis
         if ($nikKtp !== $nikKk) {
             return back()
                 ->withErrors(['nik_ktp' => 'NIK KTP dan NIK KK tidak sesuai/tidak cocok.'])
@@ -76,12 +108,22 @@ class PengajuanSuratController extends Controller
         $fotoKtpPath = $request->file('foto_ktp')->store($folder . '/dokumen', 'public');
         $fotoKkPath = $request->file('foto_kk')->store($folder . '/dokumen', 'public');
 
+        // Collect dynamic fields data
+        $dataFields = [];
+        if ($jenisSurat && $jenisSurat->fields_config) {
+            foreach ($jenisSurat->fields_config as $field) {
+                $fieldName = 'dynamic_' . $field['name'];
+                $dataFields[$field['name']] = $data[$fieldName] ?? null;
+            }
+        }
+
         $createData = [
             'penduduk_id' => $data['penduduk_id'],
             'jenis_surat_id' => $data['jenis_surat_id'],
             'user_id' => auth()->id(),
 
             'keterangan' => $data['keterangan'] ?? null,
+            'data_fields' => !empty($dataFields) ? $dataFields : null,
             'surat_pengantar_rt_rw' => $data['surat_pengantar_rt_rw'],
 
             'foto_ktp' => $fotoKtpPath,

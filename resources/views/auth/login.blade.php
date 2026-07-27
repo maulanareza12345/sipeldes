@@ -242,8 +242,7 @@
         </div>
 
         <div class="hint demo-box">
-            Demo: <b>Email</b> / <b>password</b><br>
-            Belum punya akun? <a href="{{ route('register') }}">Registrasi</a>
+            Demo: <b>Email</b> / <b>password</b>
         </div>
     </div>
 </div>

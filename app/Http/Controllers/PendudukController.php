@@ -24,6 +24,7 @@ class PendudukController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'no_kk' => ['nullable', 'max:20'],
             'nik' => ['required', 'unique:penduduks,nik'],
             'nama' => ['required'],
             'tempat_lahir' => ['nullable'],
@@ -33,6 +34,7 @@ class PendudukController extends Controller
             'pekerjaan' => ['nullable'],
             'kewarganegaraan' => ['nullable'],
             'status' => ['nullable'],
+            'status_perkawinan' => ['nullable'],
             'agama' => ['nullable'],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
@@ -59,6 +61,7 @@ class PendudukController extends Controller
     public function update(Request $request, Penduduk $penduduk)
     {
         $data = $request->validate([
+            'no_kk' => ['nullable', 'max:20'],
             'nik' => ['required', 'unique:penduduks,nik,' . $penduduk->id],
             'nama' => ['required'],
             'tempat_lahir' => ['nullable'],
@@ -68,6 +71,7 @@ class PendudukController extends Controller
             'pekerjaan' => ['nullable'],
             'kewarganegaraan' => ['nullable'],
             'status' => ['nullable'],
+            'status_perkawinan' => ['nullable'],
             'agama' => ['nullable'],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);

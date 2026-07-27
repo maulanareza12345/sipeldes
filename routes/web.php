@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanPelayananController;
@@ -11,9 +12,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-
-Route::get('/register', [RegisterController::class, 'showRegister'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -59,8 +57,11 @@ Route::middleware('auth')->group(function () {
     // Hapus rekap laporan
     Route::delete('/laporan/{laporanPelayanan}', [\App\Http\Controllers\LaporanTtdBulananController::class, 'destroy'])->name('laporan.destroy');
 
-
-
+    // Manajemen Admin (hanya untuk admin)
+    Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
+    Route::post('/admin/settings', [AdminController::class, 'store'])->name('admin.settings.store');
 });
+
+
 
 

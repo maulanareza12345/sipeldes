@@ -330,6 +330,9 @@
                 <a href="{{ route('laporan.index') }}" class="{{ Route::is('laporan.*') ? 'active' : '' }}">
                     <span aria-hidden>🧾</span> Laporan
                 </a>
+                <a href="{{ route('admin.settings') }}" class="{{ Route::is('admin.settings') ? 'active' : '' }}">
+                    <span aria-hidden>⚙️</span> Pengaturan
+                </a>
 
             </div>
         </nav>
