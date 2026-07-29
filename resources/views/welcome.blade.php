@@ -287,7 +287,7 @@
                     <div class="kpi">
                         <div>
                             <div class="label">Akses Dokumen</div>
-                            <div class="value">Privat Rahasia</div>
+                            <div class="value">Akses Internal</div>
                         </div>
                         <div class="kpi-icon">🔎</div>
                     </div>

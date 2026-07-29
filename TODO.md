@@ -1,9 +1,20 @@
-# TODO: Redesign Surat Pindah PDF
+# ✅ SELESAI: Remove Demografi Penduduk & Statistik Pengajuan Bulanan from Dashboard
 
-## Steps
-- [x] 0. Analyze existing codebase (pindah.blade.php, pdf.blade.php, seeder, controller)
-- [x] 1. Get user approval on plan
-- [x] 2. Update JenisSuratConfigSeeder.php - Add missing fields for Surat Pindah
-- [x] 3. Rewrite resources/views/pengajuan-surat/content/pindah.blade.php - Professional layout
-- [x] 4. Run seeder: `php artisan db:seed --class=JenisSuratConfigSeeder`
+## Completed Tasks
+
+### 1. `app/Http/Controllers/DashboardController.php` ✅
+- [x] Hapus query `pendudukByGender`, `pendudukByAgama`, `pendudukByStatus`, `pendudukByPekerjaan`
+- [x] Hapus query `jenisKelahiran`, `jenisKematian`, `jenisPindah`
+- [x] Hapus query `monthlyKelahiran`, `monthlyKematian`, `monthlyPindah`
+- [x] Hapus helper method `getMonthlyCountByJenis()`
+- [x] Update `compact()` — hanya dengan `totalPenduduk`, `totalPengajuan`, `disetujui`, `pending`, `ditolak`, `recent`
+
+### 2. `resources/views/dashboard/index.blade.php` ✅
+- [x] Hapus section HTML Demografi Penduduk (chart-grid-4 dengan 4 chart card)
+- [x] Hapus section HTML Statistik Pengajuan Bulanan (chart-grid-3 dengan 3 chart card)
+- [x] Hapus CSS class chart-grid-4, chart-grid-3, chart-card, chart-card-title, chart-wrapper
+- [x] Hapus JavaScript chart demografi (genderChart, agamaChart, statusChart, pekerjaanChart)
+- [x] Hapus JavaScript chart bulanan (renderMonthlyChart function + 3 pemanggilan)
+- [x] Hapus duplikasi `</style>`
+- [x] Hanya menyisakan chart statusPie (Rasio Berkas) — masih berfungsi normal
 

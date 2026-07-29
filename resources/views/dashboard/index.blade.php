@@ -304,6 +304,10 @@
         </div>
 
     </div>
+
+    {{-- Additional space for clean layout --}}
+    <div style="height: 4px;"></div>
+
 </div>
 
 {{-- Chart.js --}}
@@ -377,5 +381,6 @@
             plugins: [centerTextPlugin]
         });
     })();
+
 </script>
 @endsection

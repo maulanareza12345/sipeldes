@@ -18,18 +18,21 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'lama_tinggal', 'label' => 'Lama Tinggal', 'type' => 'text', 'required' => false, 'show' => true],
                 ],
                 'pdf_template' => 'domisili',
+                'surat_pengantar' => 'wajib',
             ],
             'Surat Pengantar KTP' => [
                 'fields_config' => [
                     ['name' => 'keperluan_ktp', 'label' => 'Keperluan KTP', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'pengantar-ktp',
+                'surat_pengantar' => 'opsional',
             ],
             'Surat Pengantar KK' => [
                 'fields_config' => [
                     ['name' => 'keperluan_kk', 'label' => 'Keperluan KK', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'pengantar-kk',
+                'surat_pengantar' => 'opsional',
             ],
             'Surat Keterangan Usaha' => [
                 'fields_config' => [
@@ -40,6 +43,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'usaha',
+                'surat_pengantar' => 'wajib',
             ],
             'Surat Keterangan Tidak Mampu' => [
                 'fields_config' => [
@@ -49,6 +53,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keterangan_tambahan', 'label' => 'Keterangan Tambahan', 'type' => 'textarea', 'required' => false, 'show' => true],
                 ],
                 'pdf_template' => 'tidak-mampu',
+                'surat_pengantar' => 'wajib',
             ],
             'Surat Keterangan Kelahiran' => [
                 'fields_config' => [
@@ -62,6 +67,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => false, 'show' => true],
                 ],
                 'pdf_template' => 'kelahiran',
+                'surat_pengantar' => 'opsional',
             ],
             'Surat Keterangan Kematian' => [
                 'fields_config' => [
@@ -72,6 +78,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => false, 'show' => true],
                 ],
                 'pdf_template' => 'kematian',
+                'surat_pengantar' => 'opsional',
             ],
             'Surat Pindah' => [
                 'fields_config' => [
@@ -100,6 +107,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keluarga_pindah_json', 'label' => 'Data Keluarga Pindah (JSON)', 'type' => 'hidden', 'required' => false, 'show' => false],
                 ],
                 'pdf_template' => 'pindah',
+                'surat_pengantar' => 'tidak_perlu',
             ],
             'Surat Kehilangan' => [
                 'fields_config' => [
@@ -111,6 +119,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'kehilangan',
+                'surat_pengantar' => 'wajib',
             ],
             'Surat Izin Keramaian' => [
                 'fields_config' => [
@@ -122,6 +131,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'penanggung_jawab', 'label' => 'Penanggung Jawab', 'type' => 'text', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'izin-keramaian',
+                'surat_pengantar' => 'wajib',
             ],
             'Surat Pengantar Nikah' => [
                 'fields_config' => [
@@ -134,6 +144,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => false, 'show' => true],
                 ],
                 'pdf_template' => 'pengantar-nikah',
+                'surat_pengantar' => 'opsional',
             ],
             'Surat Ahli Waris' => [
                 'fields_config' => [
@@ -146,6 +157,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'ahli-waris',
+                'surat_pengantar' => 'tidak_perlu',
             ],
             'Surat Bebas Sengketa' => [
                 'fields_config' => [
@@ -155,6 +167,7 @@ class JenisSuratConfigSeeder extends Seeder
                     ['name' => 'keperluan', 'label' => 'Keperluan', 'type' => 'textarea', 'required' => true, 'show' => true],
                 ],
                 'pdf_template' => 'bebas-sengketa',
+                'surat_pengantar' => 'wajib',
             ],
         ];
 
@@ -164,6 +177,7 @@ class JenisSuratConfigSeeder extends Seeder
                 $jenisSurat->update([
                     'fields_config' => $config['fields_config'],
                     'pdf_template' => $config['pdf_template'],
+                    'surat_pengantar' => $config['surat_pengantar'] ?? 'wajib',
                 ]);
                 $this->command->info("Updated: {$nama}");
             } else {

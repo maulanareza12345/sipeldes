@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Penduduk;
 use App\Models\PengajuanSurat;
+use App\Models\JenisSurat;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -22,6 +24,8 @@ class DashboardController extends Controller
 
         $recent = PengajuanSurat::with(['penduduk', 'jenisSurat'])->latest()->take(5)->get();
 
-        return view('dashboard.index', compact('totalPenduduk', 'totalPengajuan', 'disetujui', 'pending', 'ditolak', 'recent'));
+        return view('dashboard.index', compact(
+            'totalPenduduk', 'totalPengajuan', 'disetujui', 'pending', 'ditolak', 'recent'
+        ));
     }
 }

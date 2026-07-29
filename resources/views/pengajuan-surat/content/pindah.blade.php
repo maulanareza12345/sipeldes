@@ -129,10 +129,6 @@
     </tbody>
 </table>
 
-<div class="text-justify" style="margin-top: 5px;">
-    Demikian surat keterangan pindah ini untuk dipergunakan sebagaimana mestinya.
-</div>
-
 @include('pengajuan-surat.content._surat_pengantar')
 @include('pengajuan-surat.content._penutup')
 </div>

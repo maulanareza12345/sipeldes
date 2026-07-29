@@ -49,8 +49,8 @@ class PengajuanSuratController extends Controller
             'nik_ktp' => ['required', 'digits:16'],
             'nik_kk' => ['required', 'digits:16'],
 
-            // Surat Pengantar dari RT/RW
-            'surat_pengantar_rt_rw' => ['required', 'string'],
+            // Surat Pengantar dari RT/RW - akan di-override conditional di bawah
+            'surat_pengantar_rt_rw' => ['nullable', 'string'],
 
             // ttd (opsional)
             'nama_ttd' => ['nullable', 'string', 'max:255'],
@@ -59,6 +59,19 @@ class PengajuanSuratController extends Controller
 
         // Add dynamic field validation based on selected jenis_surat
         $jenisSurat = JenisSurat::find($request->jenis_surat_id);
+
+        // Conditional validation for surat_pengantar_rt_rw based on jenis surat
+        if ($jenisSurat) {
+            if ($jenisSurat->surat_pengantar === 'wajib') {
+                $baseRules['surat_pengantar_rt_rw'] = ['required', 'string'];
+            } elseif ($jenisSurat->surat_pengantar === 'tidak_perlu') {
+                $baseRules['surat_pengantar_rt_rw'] = ['nullable', 'string'];
+                // Remove from request entirely if not needed
+                $request->request->remove('surat_pengantar_rt_rw');
+            }
+            // 'opsional' stays as nullable
+        }
+
         $dynamicFieldRules = [];
         if ($jenisSurat && $jenisSurat->fields_config) {
             foreach ($jenisSurat->fields_config as $field) {
@@ -124,7 +137,7 @@ class PengajuanSuratController extends Controller
 
             'keterangan' => $data['keterangan'] ?? null,
             'data_fields' => !empty($dataFields) ? $dataFields : null,
-            'surat_pengantar_rt_rw' => $data['surat_pengantar_rt_rw'],
+            'surat_pengantar_rt_rw' => $data['surat_pengantar_rt_rw'] ?? null,
 
             'foto_ktp' => $fotoKtpPath,
             'foto_kk' => $fotoKkPath,
