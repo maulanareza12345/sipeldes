@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ArsipSuratController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanPelayananController;
@@ -57,9 +58,14 @@ Route::middleware('auth')->group(function () {
     // Hapus rekap laporan
     Route::delete('/laporan/{laporanPelayanan}', [\App\Http\Controllers\LaporanTtdBulananController::class, 'destroy'])->name('laporan.destroy');
 
-    // Manajemen Admin (hanya untuk admin)
+// Manajemen Admin (hanya untuk admin)
     Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'store'])->name('admin.settings.store');
+
+    // Sistem Pengarsipan Surat (Admin & Perangkat)
+    Route::get('/arsip', [ArsipSuratController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip/{pengajuanSurat}', [ArsipSuratController::class, 'show'])->name('arsip.show');
+    Route::get('/arsip/{pengajuanSurat}/download', [ArsipSuratController::class, 'download'])->name('arsip.download');
 });
 
 

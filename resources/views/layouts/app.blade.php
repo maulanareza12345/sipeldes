@@ -324,8 +324,11 @@
                 <a href="{{ route('penduduk.index') }}" class="{{ Route::is('penduduk.*') ? 'active' : '' }}">
                     <span aria-hidden>👥</span> Penduduk
                 </a>
-                <a href="{{ route('pengajuan-surat.index') }}" class="{{ Route::is('pengajuan-surat.*') ? 'active' : '' }}">
+<a href="{{ route('pengajuan-surat.index') }}" class="{{ Route::is('pengajuan-surat.*') ? 'active' : '' }}">
                     <span aria-hidden>📄</span> Pengajuan Surat
+                </a>
+                <a href="{{ route('arsip.index') }}" class="{{ Route::is('arsip.*') ? 'active' : '' }}">
+                    <span aria-hidden>📁</span> Arsip Surat
                 </a>
                 <a href="{{ route('laporan.index') }}" class="{{ Route::is('laporan.*') ? 'active' : '' }}">
                     <span aria-hidden>🧾</span> Laporan

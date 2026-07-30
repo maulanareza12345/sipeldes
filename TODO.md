@@ -1,20 +1,23 @@
-# ✅ SELESAI: Remove Demografi Penduduk & Statistik Pengajuan Bulanan from Dashboard
+# TODO: Sistem Pengarsipan & Manajemen Folder Surat
 
-## Completed Tasks
+## Steps
 
-### 1. `app/Http/Controllers/DashboardController.php` ✅
-- [x] Hapus query `pendudukByGender`, `pendudukByAgama`, `pendudukByStatus`, `pendudukByPekerjaan`
-- [x] Hapus query `jenisKelahiran`, `jenisKematian`, `jenisPindah`
-- [x] Hapus query `monthlyKelahiran`, `monthlyKematian`, `monthlyPindah`
-- [x] Hapus helper method `getMonthlyCountByJenis()`
-- [x] Update `compact()` — hanya dengan `totalPenduduk`, `totalPengajuan`, `disetujui`, `pending`, `ditolak`, `recent`
+### 1. ✅ Buat ArsipSuratController.php
+- [x] Method `index()` - menampilkan arsip dengan filter & pencarian
+- [x] Method `show()` - detail riwayat surat
+- [x] Method `download()` - unduh PDF surat
 
-### 2. `resources/views/dashboard/index.blade.php` ✅
-- [x] Hapus section HTML Demografi Penduduk (chart-grid-4 dengan 4 chart card)
-- [x] Hapus section HTML Statistik Pengajuan Bulanan (chart-grid-3 dengan 3 chart card)
-- [x] Hapus CSS class chart-grid-4, chart-grid-3, chart-card, chart-card-title, chart-wrapper
-- [x] Hapus JavaScript chart demografi (genderChart, agamaChart, statusChart, pekerjaanChart)
-- [x] Hapus JavaScript chart bulanan (renderMonthlyChart function + 3 pemanggilan)
-- [x] Hapus duplikasi `</style>`
-- [x] Hanya menyisakan chart statusPie (Rasio Berkas) — masih berfungsi normal
+### 2. ✅ Buat resources/views/arsip/index.blade.php
+- [x] Tampilan folder-based per jenis surat
+- [x] Filter bar (jenis surat, tanggal, nama pemohon)
+- [x] Tabel daftar surat dengan aksi (Riwayat, Unduh, Lihat)
 
+### 3. ✅ Buat resources/views/arsip/show.blade.php
+- [x] Halaman detail riwayat surat
+
+### 4. ✅ Edit routes/web.php
+- [x] Tambah import ArsipSuratController
+- [x] Tambah route arsip (index, show, download)
+
+### 5. ✅ Edit resources/views/layouts/app.blade.php
+- [x] Tambah menu "Arsip Surat" di sidebar
