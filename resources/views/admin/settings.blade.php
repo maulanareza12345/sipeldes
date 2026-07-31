@@ -224,6 +224,12 @@
     @endif
 
     <!-- Alert Error -->
+    @if(session('error'))
+        <div class="alert-compact alert-compact-danger">
+            ⚠️ {{ session('error') }}
+        </div>
+    @endif
+
     @if($errors->any())
         <div class="alert-compact alert-compact-danger">
             ⚠️ {{ $errors->first() }}
@@ -284,11 +290,12 @@
             
             <div class="table-responsive-box" style="overflow-x: auto;">
                 <table class="compact-table">
-                    <thead>
+<thead>
                         <tr>
                             <th>Nama</th>
                             <th>Email</th>
                             <th style="width: 100px; text-align: center;">Role</th>
+                            <th style="width: 100px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -299,10 +306,22 @@
                                 <td style="text-align: center;">
                                     <span class="badge-role-mini">{{ $admin->role }}</span>
                                 </td>
+                                <td style="text-align: center;">
+                                    <form method="POST" action="{{ route('admin.settings.destroy', $admin->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus admin {{ $admin->name }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" style="background: none; border: none; cursor: pointer; color: #ef4444; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                            <svg style="width:14px; height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" style="text-align: center; color: #94a3b8; padding: 30px 10px; font-size: 0.85rem;">
+                                <td colspan="4" style="text-align: center; color: #94a3b8; padding: 30px 10px; font-size: 0.85rem;">
                                     👤 Belum ada admin lain selain Anda.
                                 </td>
                             </tr>

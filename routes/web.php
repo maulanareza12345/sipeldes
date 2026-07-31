@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
 // Manajemen Admin (hanya untuk admin)
     Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'store'])->name('admin.settings.store');
+    Route::delete('/admin/settings/{user}', [AdminController::class, 'destroy'])->name('admin.settings.destroy');
 
     // Sistem Pengarsipan Surat (Admin & Perangkat)
     Route::get('/arsip', [ArsipSuratController::class, 'index'])->name('arsip.index');

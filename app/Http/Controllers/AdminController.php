@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -39,6 +40,19 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.settings')->with('success', 'Admin baru berhasil ditambahkan.');
+    }
+
+    public function destroy($id)
+    {
+        // Prevent self-deletion
+        if ($id == auth()->id()) {
+            return redirect()->route('admin.settings')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $admin = User::where('role', 'admin')->findOrFail($id);
+        $admin->delete();
+
+        return redirect()->route('admin.settings')->with('success', 'Admin berhasil dihapus.');
     }
 }
 
