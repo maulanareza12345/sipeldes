@@ -279,9 +279,41 @@
         font-weight: 800;
         text-transform: uppercase;
     }
-    .surat-info-card .surat-badge.wajib { background: #fef2f2; color: #dc2626; }
+.surat-info-card .surat-badge.wajib { background: #fef2f2; color: #dc2626; }
     .surat-info-card .surat-badge.opsional { background: #fffbeb; color: #d97706; }
     .surat-info-card .surat-badge.tidak-perlu { background: #ecfdf5; color: #059669; }
+    .surat-info-card .surat-nomor-format {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        font-size: 0.82rem;
+        color: #0f172a;
+        display: none;
+    }
+    .surat-info-card .surat-nomor-format.visible { display: block; }
+    .surat-info-card .surat-nomor-format .format-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #64748b;
+        margin-bottom: 3px;
+    }
+    .surat-info-card .surat-nomor-format .format-value {
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.3px;
+        color: #0f172a;
+        word-break: break-all;
+    }
+    .surat-info-card .surat-nomor-format .format-note {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 3px;
+        font-weight: 500;
+    }
 
     /* BUTTONS */
     .btn {
@@ -511,11 +543,12 @@
                     <label>Jenis Dokumen Surat <span class="required-star">*</span></label>
                     <select name="jenis_surat_id" id="jenis_surat_id" class="form-control" required>
                         <option value="">— Pilih jenis layanan surat —</option>
-                        @foreach($jenisSurats as $item)
+@foreach($jenisSurats as $item)
                             <option
                                 value="{{ $item->id }}"
                                 data-fields='{{ json_encode($item->fields_config ?? []) }}'
                                 data-surat-pengantar="{{ $item->surat_pengantar ?? 'wajib' }}"
+                                data-nomor-format="{{ $nomorSuratFormats[$item->nama] ?? '400/{no_surat}/VII/pem' }}"
                             >
                                 {{ $item->nama }}
                             </option>
@@ -526,11 +559,12 @@
                     @enderror
                 </div>
 
-                <!-- Informasi Surat Card -->
+<!-- Informasi Surat Card -->
                 <div class="surat-info-card" id="suratInfoCard">
                     <div class="surat-name" id="suratInfoName"></div>
                     <div class="surat-desc" id="suratInfoDesc"></div>
                     <div class="surat-badge" id="suratInfoBadge"></div>
+                    <div class="surat-nomor-format" id="suratNomorFormat"></div>
                 </div>
 
                 <!-- Dynamic Fields Container -->
@@ -954,7 +988,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const suratInfoCard = document.getElementById('suratInfoCard');
     const suratInfoName = document.getElementById('suratInfoName');
     const suratInfoDesc = document.getElementById('suratInfoDesc');
-    const suratInfoBadge = document.getElementById('suratInfoBadge');
+const suratInfoBadge = document.getElementById('suratInfoBadge');
+    const suratNomorFormat = document.getElementById('suratNomorFormat');
     const suratPengantarWrapper = document.getElementById('surat_pengantar_wrapper');
     const suratPengantarTextarea = document.getElementById('surat_pengantar_rt_rw');
     const suratPengantarInfo = document.getElementById('surat_pengantar_info');
@@ -1000,8 +1035,21 @@ document.addEventListener('DOMContentLoaded', function () {
             badgeText = '📎 Lampiran Surat Pengantar RT/RW: Tidak Perlu';
             badgeClass = 'tidak-perlu';
         }
-        suratInfoBadge.textContent = badgeText;
+suratInfoBadge.textContent = badgeText;
         suratInfoBadge.className = 'surat-badge ' + badgeClass;
+
+        // Tampilkan format nomor surat sesuai jenis surat yang dipilih
+        const nomorFormat = selectedOption ? selectedOption.dataset.nomorFormat : '';
+        if (suratNomorFormat && nomorFormat) {
+            suratNomorFormat.classList.add('visible');
+            suratNomorFormat.innerHTML =
+                '<div class="format-label">🔢 Format Nomor Surat</div>' +
+                '<div class="format-value">' + escapeHtml(nomorFormat) + '</div>' +
+                '<div class="format-note">Nomor urut (…) akan diisi otomatis saat surat disetujui.</div>';
+        } else if (suratNomorFormat) {
+            suratNomorFormat.classList.remove('visible');
+            suratNomorFormat.innerHTML = '';
+        }
 
         updateSuratPengantarSection(suratPengantar);
     }

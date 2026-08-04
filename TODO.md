@@ -1,23 +1,13 @@
-# TODO: Sistem Pengarsipan & Manajemen Folder Surat
+# TODO: Fitur Format Nomor Surat Otomatis
 
-## Steps
+## Step 1: Controller - Tambah mapping format nomor surat & pass ke view
+- [x] Tambah array format nomor surat di `PengajuanSuratController` (11 format + fallback)
+- [x] Helper function `getNomorFormatFor($jenisSuratNama)`
+- [x] `index()`: pass `$nomorSuratFormats` ke view
+- [x] `approve()`: generate nomor surat sesuai format per jenis surat
+- [x] `pdf()`: fallback nomor_surat juga pakai format sesuai jenis surat
 
-### 1. ✅ Buat ArsipSuratController.php
-- [x] Method `index()` - menampilkan arsip dengan filter & pencarian
-- [x] Method `show()` - detail riwayat surat
-- [x] Method `download()` - unduh PDF surat
-
-### 2. ✅ Buat resources/views/arsip/index.blade.php
-- [x] Tampilan folder-based per jenis surat
-- [x] Filter bar (jenis surat, tanggal, nama pemohon)
-- [x] Tabel daftar surat dengan aksi (Riwayat, Unduh, Lihat)
-
-### 3. ✅ Buat resources/views/arsip/show.blade.php
-- [x] Halaman detail riwayat surat
-
-### 4. ✅ Edit routes/web.php
-- [x] Tambah import ArsipSuratController
-- [x] Tambah route arsip (index, show, download)
-
-### 5. ✅ Edit resources/views/layouts/app.blade.php
-- [x] Tambah menu "Arsip Surat" di sidebar
+## Step 2: View - Tampilkan format nomor surat di dropdown
+- [x] `index.blade.php`: tambah atribut `data-nomor-format` pada tiap `<option>`
+- [x] `index.blade.php`: tambah elemen "Format Nomor Surat" di surat-info-card
+- [x] JS: saat pilih jenis surat, tampilkan format nomor otomatis

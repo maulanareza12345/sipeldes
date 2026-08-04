@@ -11,6 +11,38 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PengajuanSuratController extends Controller
 {
+    /**
+     * Mapping format nomor surat berdasarkan nama jenis surat.
+     * Key adalah nama jenis surat (case-sensitive).
+     * {no_surat} adalah placeholder yang akan diganti dengan nomor urut (001, 002, dst).
+     */
+    protected static $nomorSuratFormats = [
+        'Surat Serbaguna'                            => '472/{no_surat}/VII/umum',
+        'Surat Keterangan Usaha'                     => '570/{no_surat}/VII/kesra',
+        'Surat Keterangan Domisili'                  => '470/{no_surat}/VII/pem',
+        'Surat Domisili Usaha'                       => '503/{no_surat}/VII/pem',
+        'Surat Keterangan Kelahiran'                 => '474.1/{no_surat}/VII/Rem',
+        'Surat Keterangan Kematian'                  => '474.3/{no_surat}/VII/pem',
+        'Surat Pengantar Nikah'                      => '474.2/{no_surat}/VII/pem',
+        'PSKS'                                       => '400/{no_surat}/puskesos/VII/kesra',
+        'Surat Keterangan Belum Menikah'             => '471/{no_surat}/VII/pem',
+        'Surat Keterangan Janda/Duda'                => '472.2/{no_surat}/VII/pem',
+        'Surat Pindah'                               => '141/{no_surat}/VIII/PEM',
+    ];
+
+    /**
+     * Ambil format nomor surat untuk nama jenis surat tertentu.
+     * Gunakan fallback default jika tidak tercantum di daftar.
+     */
+    public static function getNomorFormatFor(?string $namaJenisSurat): string
+    {
+        if ($namaJenisSurat && array_key_exists($namaJenisSurat, static::$nomorSuratFormats)) {
+            return static::$nomorSuratFormats[$namaJenisSurat];
+        }
+        // Fallback default
+        return '400/{no_surat}/VII/pem';
+    }
+
     public function __construct()
     {
         $this->middleware(['auth', 'role:admin,perangkat']);
@@ -30,7 +62,13 @@ class PengajuanSuratController extends Controller
             }
         }
 
-        return view('pengajuan-surat.index', compact('pengajuanSurats', 'penduduks', 'jenisSurats', 'fieldConfigs'));
+        // Build nomor surat format per option (keyed by jenis_surat nama)
+        $nomorSuratFormats = [];
+        foreach ($jenisSurats as $js) {
+            $nomorSuratFormats[$js->nama] = static::getNomorFormatFor($js->nama);
+        }
+
+        return view('pengajuan-surat.index', compact('pengajuanSurats', 'penduduks', 'jenisSurats', 'fieldConfigs', 'nomorSuratFormats'));
     }
 
     public function store(Request $request)
@@ -159,7 +197,7 @@ class PengajuanSuratController extends Controller
 
     public function approve(PengajuanSurat $pengajuanSurat)
     {
-        // Penomoran otomatis reset per tahun (urut berdasarkan jumlah pengajuan yang disetujui pada tahun tsb)
+// Penomoran otomatis reset per tahun (urut berdasarkan jumlah pengajuan yang disetujui pada tahun tsb)
         $tahun = date('Y');
         $tanggalDisetujui = now()->toDateString();
 
@@ -169,10 +207,17 @@ class PengajuanSuratController extends Controller
             ->where('status', 'disetujui')
             ->count() + 1;
 
+        // Nomor urut ber-padding 3 digit (001, 002, dst)
+        $noSurat = str_pad((string) $urut, 3, '0', STR_PAD_LEFT);
+
+        // Program nomor sesuai format per jenis surat
+        $format = static::getNomorFormatFor($pengajuanSurat->jenisSurat->nama ?? null);
+        $nomorSurat = str_replace('{no_surat}', $noSurat, $format);
+
         $pengajuanSurat->update([
             'status' => 'disetujui',
             'tanggal_disetujui' => $tanggalDisetujui,
-            'nomor_surat' => 'BJB/' . $tahun . '/' . str_pad((string) $urut, 4, '0', STR_PAD_LEFT),
+            'nomor_surat' => $nomorSurat,
             'catatan_admin' => 'Disetujui melalui sistem.',
         ]);
 
@@ -219,10 +264,12 @@ class PengajuanSuratController extends Controller
 
     public function pdf(PengajuanSurat $pengajuanSurat)
     {
-        // Pastikan nomor surat selalu terisi sebelum PDF dibuat
+// Pastikan nomor surat selalu terisi sebelum PDF dibuat
         if (empty($pengajuanSurat->nomor_surat)) {
+            $format = static::getNomorFormatFor($pengajuanSurat->jenisSurat->nama ?? null);
+            $noSurat = str_pad((string) $pengajuanSurat->id, 3, '0', STR_PAD_LEFT);
             $pengajuanSurat->update([
-                'nomor_surat' => 'BJB/' . date('Y') . '/' . str_pad((string) $pengajuanSurat->id, 4, '0', STR_PAD_LEFT),
+                'nomor_surat' => str_replace('{no_surat}', $noSurat, $format),
             ]);
         }
 
